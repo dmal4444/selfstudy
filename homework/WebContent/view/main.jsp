@@ -9,14 +9,45 @@
 <script src="src/jui_chart/dist/chart.js"></script>
 <script src= "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
+
+<style>
+table {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+tr:nth-child(even){background-color: #f2f2f2;}
+
+tr:hover {background-color: #ddd;}
+
+th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #743d8f;
+    color: white;
+}
+.tbHeader {
+	background-color: #bd94d1;
+}
+
+
+</style>
+
 <body>
 <div align="center">찾고싶은 테이블 이름을 입력하세요.<input type="text" id="tableName">
 	<input type="submit" value="검색" id="sendBtn"></div>
 	<table border ="1" align="center" width="800" id="columnTable">
-		<tr><td colspan="4"><a class="tbName">TABLE</a> COLUMN 정보</td></tr>
+		<tr><th colspan="4" class="tbHeader"><a class="tbName">TABLE</a> COLUMN 정보</th></tr>
 		<tr>
-			<td>컬럼명</td>
-			<td>컬럼타입</td>
+			<th>컬럼명</th>
+			<th>컬럼타입</th>
 		</tr>
 	</table>
 	<p>
@@ -40,10 +71,10 @@
 	
 	</p>
 	<table border="1" align="center" width="800" id="valueTable">
-		<tr id="tbRow"><td colspan="20"><a class="tbName">TABLE</a> DATA 정보</td></tr>
+		<tr id="tbRow"><th class="tbHeader" colspan="20"><a class="tbName">TABLE</a> DATA 정보</th></tr>
 	</table>
 	
-	<div style="width:500px;height:500px;">
+	<div style="text-align:center;width:1000px;height:500px;display:inline-block;">
 		<div id="chart" style="width:100%;height:100%" ></div>
 	</div>
 
@@ -82,7 +113,7 @@
 					var tableCode_tbData = ""; // 컬럼명 추가하기 위한 변소
 					
 					$.each(tbDataIdx[0], function(key, value){
-						tableCode_tbData +="<td id='append_columnName'>"+key+"</td>";//컬럼이름
+						tableCode_tbData +="<th id='append_columnName'>"+key+"</th>";//컬럼이름
 					});
 					$("#tbRow").after(tableCode_tbData);
 					
