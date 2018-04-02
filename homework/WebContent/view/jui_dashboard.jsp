@@ -6,6 +6,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
 <title>Insert title here</title>
 </head>
+<!-- ajax library -->
+<script src= "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
 <!-- jui_chart library -->
 <script src="../src/jui_chart/lib/jquery-1.8.0.min.js"></script>
 <script src="../src/jui_chart/dist/chart.js"></script>
@@ -21,25 +24,84 @@
 </div>
 </body>
 
+<script id="ajax">
+function getAjaxData(tableName){
+	var data;
+	$.ajax({
+		url: '../AjaxServlet',
+		data: 'tableName='+tableName,
+		dataType: 'json',
+		type: 'GET',
+		success:function(data){
+	//		console.log(data);
+			this.data = data;
+			var tbDataIdx=data[0][tableName]; 
+			var columnName = tableName+"_column";
+						
+			var chartData= "";
+			if(tableName == "emp"){
+				for(var i=0; i<tbDataIdx.length; i++){
+					if(i == tbDataIdx.length-1){
+						chartData += '{"ename" : "'+tbDataIdx[i].ENAME+'", "salary" : '+tbDataIdx[i].SAL+'}]'
+					}
+					else if(i == 0){
+						chartData += '[{"ename" : "'+tbDataIdx[i].ENAME+'", "salary" : '+tbDataIdx[i].SAL+'},'
+					}
+					else{
+						chartData += '{"ename" : "'+tbDataIdx[i].ENAME+'", "salary" : '+tbDataIdx[i].SAL+'},'
+					}
+				}
+			}
+				
+				
+			//chart에 넣어줄 데이터를 JSON형식으로 바꾼다.
+			jsonObj = JSON.parse(chartData);
+//			console.log(jsonObj);
+		doSomething(data);
+			
+		},
+		error:function(request, status, error){
+			alert(request.responseText);
+		}
+		
+	});
+	
+
+}
+
+function doSomething(param){
+	console.log(param);
+	for(var i = 0; i<param[0]["emp"].length; i++){
+		console.log(param[0]["emp"][i].HIREDATE);
+	}
+	return param;
+	
+}
+</script>
 <script id="scatter">
 var chart = jui.include("chart.builder");
 var time = jui.include("util.time");
+
+getAjaxData("emp");
 
 function getNumber() {
     return Math.round(Math.random() * 30  % 20);
 }
 
 var start = new Date(),
-    end = time.add(start, time.hours, 5),
+	end = time.add(start, time.hours, 5),
     data = [];
 
 for(var i = 0; i < 30; i++) {
+	
     data.push({
         time : time.add(start, time.minutes, i*10),
         sales : getNumber(),
         profit : getNumber() * 0.75,
         total : getNumber() * 1.5
     });
+    
+    
 }
 
 chart("#scatter_result", {
@@ -50,7 +112,7 @@ chart("#scatter_result", {
         x : {
             type : "date",
             domain : [ start, end ],
-            interval : 1000 * 60 * 60, // 1hours
+            interval : 1000 * 60 *60, // 1hours
             format : "hh:mm",
             key: "time",
             line : true
@@ -66,7 +128,7 @@ chart("#scatter_result", {
     brush : {
         type : "scatter",
         size : 7,
-        target : [ "sales", "profit", "total" ]
+        target : [ "sales", "total" ]
     },
     widget : [{
         type : "title",
@@ -74,7 +136,7 @@ chart("#scatter_result", {
     }, {
         type : "cross",
         xFormat : function(d) {
-            return time.format(d, "hh:mm");
+            return time.format(d, "yy-MM");
         },
         yFormat : function(d) {
             return Math.round(d);
