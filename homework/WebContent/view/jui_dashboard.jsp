@@ -14,7 +14,7 @@
 <script src="../src/jui_chart/dist/chart.js"></script>
 
 <body>
-<div style="width:2000px; height:500px;">
+<div style="width:1500px; height:500px;">
 	<div id="scatter_result" style="width:50%; height:100%; float:left;"></div>
 	<div id="bubble_result" style="width:50%; height:100%; float:left;"></div>
 </div>
@@ -25,16 +25,13 @@
 </body>
 
 <script id="ajax">
-function getAjaxData(tableName){
-	var data;
+var tableName = "emp";
 	$.ajax({
 		url: '../AjaxServlet',
 		data: 'tableName='+tableName,
 		dataType: 'json',
 		type: 'GET',
 		success:function(data){
-	//		console.log(data);
-			this.data = data;
 			var tbDataIdx=data[0][tableName]; 
 			var columnName = tableName+"_column";
 						
@@ -42,22 +39,28 @@ function getAjaxData(tableName){
 			if(tableName == "emp"){
 				for(var i=0; i<tbDataIdx.length; i++){
 					if(i == tbDataIdx.length-1){
-						chartData += '{"ename" : "'+tbDataIdx[i].ENAME+'", "salary" : '+tbDataIdx[i].SAL+'}]'
+						chartData += '{"ename" : "'+tbDataIdx[i].ENAME+'", "sal" : '+tbDataIdx[i].SAL+'}]'
 					}
 					else if(i == 0){
-						chartData += '[{"ename" : "'+tbDataIdx[i].ENAME+'", "salary" : '+tbDataIdx[i].SAL+'},'
+						chartData += '[{"ename" : "'+tbDataIdx[i].ENAME+'", "sal" : '+tbDataIdx[i].SAL+'},'
 					}
 					else{
-						chartData += '{"ename" : "'+tbDataIdx[i].ENAME+'", "salary" : '+tbDataIdx[i].SAL+'},'
+						chartData += '{"ename" : "'+tbDataIdx[i].ENAME+'", "sal" : '+tbDataIdx[i].SAL+'},'
 					}
 				}
+		
 			}
-				
-				
+
 			//chart에 넣어줄 데이터를 JSON형식으로 바꾼다.
-			jsonObj = JSON.parse(chartData);
-//			console.log(jsonObj);
-		doSomething(data);
+
+			var chart_data=JSON.parse(chartData)
+			
+						
+			scatter_chart(data);
+			bubble_chart(chart_data);
+			pie_chart(tbDataIdx);
+			bar_chart(chart_data);
+			
 			
 		},
 		error:function(request, status, error){
@@ -66,227 +69,221 @@ function getAjaxData(tableName){
 		
 	});
 	
-
-}
-
-function doSomething(param){
-	console.log(param);
-	for(var i = 0; i<param[0]["emp"].length; i++){
-		console.log(param[0]["emp"][i].HIREDATE);
-	}
-	return param;
-	
-}
 </script>
 <script id="scatter">
-var chart = jui.include("chart.builder");
-var time = jui.include("util.time");
 
-getAjaxData("emp");
-
-function getNumber() {
-    return Math.round(Math.random() * 30  % 20);
-}
-
-var start = new Date(),
-	end = time.add(start, time.hours, 5),
-    data = [];
-
-for(var i = 0; i < 30; i++) {
+function scatter_chart(data){
+	var chart = jui.include("chart.builder");
+	var time = jui.include("util.time");
 	
-    data.push({
-        time : time.add(start, time.minutes, i*10),
-        sales : getNumber(),
-        profit : getNumber() * 0.75,
-        total : getNumber() * 1.5
-    });
-    
-    
+	
+	var start = new Date(80, 09, 17),
+	end = time.add(start, time.months, 80),
+	scatter_data = [];
+	
+	for(var i = 0; i < 14; i++) {
+	    scatter_data.push({
+	        time : new Date(data[0][tableName][i].HIREDATE),
+	        sales : data[0][tableName][i].SAL,
+	        name: data[0][tableName][i].ENAME
+	    });		    
+	    
+	}
+	chart("#scatter_result", {
+	    padding : {
+	        left : 70
+	    },
+	    axis : {
+	        x : {
+	            type : "date",
+	            domain : [ start, end ],
+	            interval :  1000 * 60 * 60 * 60 * 60, // 1hours
+	            format : "yy-MM",
+	            key: "time",
+	            line : true
+	        },
+	        y : {
+	            type : "range",
+	            domain : "sales",
+	            step : 10,
+	            line : true
+	        },
+	        data : scatter_data
+	    },
+	    brush : {
+	        type : "scatter",
+	        size : 7,
+	        target : ["sales"]
+	    },
+	    widget : [{
+	        type : "title",
+	        text : "Scatter Sample"
+	    }, {
+	        type : "cross",
+	        xFormat : function(d) {
+	            return time.format(d, "yy-MM");
+	        },
+	        yFormat : function(d) {
+	            return Math.round(d);
+	        }
+	    }, {
+	        type : "tooltip"
+	    }]
+	});
 }
-
-chart("#scatter_result", {
-    padding : {
-        left : 70
-    },
-    axis : {
-        x : {
-            type : "date",
-            domain : [ start, end ],
-            interval : 1000 * 60 *60, // 1hours
-            format : "hh:mm",
-            key: "time",
-            line : true
-        },
-        y : {
-            type : "range",
-            domain : "total",
-            step : 10,
-            line : true
-        },
-        data : data
-    },
-    brush : {
-        type : "scatter",
-        size : 7,
-        target : [ "sales", "total" ]
-    },
-    widget : [{
-        type : "title",
-        text : "Scatter Sample"
-    }, {
-        type : "cross",
-        xFormat : function(d) {
-            return time.format(d, "yy-MM");
-        },
-        yFormat : function(d) {
-            return Math.round(d);
-        }
-    }, {
-        type : "tooltip"
-    }]
-});
 
 </script>
 <script id="bubble">
-var chart = jui.include("chart.builder");
-
-chart("#bubble_result", {
-    axis : {
-        x : {
-            type : "block",
-            domain : "quarter",
-            line : true
-        },
-        y : {
-            type : "range",
-            domain : [ 0, 50 ],
-            step : 10,
-            line : true
-        },
-        data : [
-            { quarter : "1Q", sales : 40, profit : 35 },
-            { quarter : "2Q", sales : 10, profit : 5 },
-            { quarter : "3Q", sales : 15, profit : 10 },
-            { quarter : "4Q", sales : 30, profit : 25 }
-        ]
-    },
-    brush : {
-        type : "bubble",
-        min : 30,
-        max : 50,
-        active : 1,
-        activeEvent : "click",
-        scaleKey : "profit",
-        target : "sales",
-        showText : true,
-        colors : [ "#ff0000" ]
-    },
-    event : {
-        click : function(data) {
-            console.log(data);
-        }
-    }
-});
-
+function bubble_chart(data){
+	var chart = jui.include("chart.builder");
+	
+	chart("#bubble_result", {
+	    axis : {
+	        x : {
+	            type : "block",
+	            domain : "ename",
+	            line : true
+	        },
+	        y : {
+	            type : "range",
+	            domain : [ 750, 5000 ],
+	            step : 10,
+	            line : true
+	        },
+	        data : data
+	    },
+	    brush : {
+	        type : "bubble",
+	        min : 30,
+	        max : 50,
+	        active : 1,
+	        activeEvent : "click",
+	        scaleKey : "sal",
+	        target : "sal",
+	        showText : true,
+	        colors : [ "#ff0000" ]
+	    },
+	    event : {
+	        click : function(data) {
+	            console.log(data);
+	        }
+	    }
+	});
+}
 </script>
 <script id="bar">
-var chart = jui.include("chart.builder");
-var activeIndex = 0,
-    data = [
-        { quarter : "1Q", samsung : 50, lg : 35, sony: 10 },
-        { quarter : "2Q", samsung : 20, lg : 30, sony: 5 },
-        { quarter : "3Q", samsung : 20, lg : 5, sony: 10 },
-        { quarter : "4Q", samsung : 30, lg : 25, sony: 15 }
-    ];
-
-chart("#bar_result", {
-    axis : {
-        x : {
-            type : "range",
-            domain : function(data) {
-                return data.samsung + data.lg + data.sony;
-            },
-            line : true,
-            orient: "top"
-        },
-        y : {
-            type : "block",
-            domain : "quarter",
-            line : true
-        },
-        data : data
-    },
-    brush : {
-        type : "stackbar",
-        active : activeIndex,
-        activeEvent : "click",
-        target : [ "samsung", "lg", "sony" ]
-    },
-    widget : [{
-        type : "title",
-        text : "Bar Sample",
-        orient : "bottom",
-        align : "end"
-    }, {
-        type : "legend",
-        filter : true
-    }],
-    event : {
-        "mousedown" : function(d) {
-            activeIndex = d.dataIndex;
-        },
-        "legend.filter" : function(target) {
-            this.updateBrush(0, { active: activeIndex });
-        }
-    }
-});
-
+function bar_chart(data){
+	var chart = jui.include("chart.builder");
+	
+	chart("#bar_result", {
+	    axis : [{
+	        x : {
+	            type : "range",
+	            domain : "sal",
+	            step : 10,
+	            line : true
+	        },
+	        y : {
+	            type : "block",
+	            domain : "ename",
+	            line : true
+	        },
+	        data : data
+	    }],
+	    brush : [{
+	        type : "focus",
+	        start : 8,
+	        end : 8
+	    }, {
+	        type : "bar",
+	        target : "sal",
+	        display : "max",
+	        active : 5,
+	        activeEvent : "mouseover",
+	        animate : true
+	    }],
+	    widget : [{
+	        type : "title",
+	        text : "Bar Sample",
+	        align : "start"
+	    }]
+	});
+}
 </script>
 <script id="pie">
-var chart = jui.include("chart.builder");
-var names = {
-    ie: "IE",
-    ff: "Fire Fox",
-    chrome: "Chrome",
-    safari: "Safari",
-    other: "Others"
-};
 
-chart("#pie_result", {
-    padding : 150,
-    axis : {
-        data : [
-            { ie : 70, ff : 11, chrome : 9, safari : 6, other : 4 }
-        ]
-    },
-    brush : {
-        type : "pie",
-        showText : "outer",
-        active : "ie",
-        activeEvent : "click",
-        format : function(k, v) {
-            return names[k] + ": " + v;
-        }
-    },
-    widget : [{
-        type : "title",
-        text : "Pie Sample"
-    }, {
-        type : "tooltip",
-        orient : "left",
-        format : function(data, k) {
-            return {
-                key: names[k],
-                value: data[k]
-            }
-        }
-    }, {
-        type : "legend",
-        format : function(k) {
-            return names[k];
-        }
-    }]
-});
+function pie_chart(tbDataIdx){
+		var president = 0;
+		var clerk = 0;
+		var salesman = 0;
+		var manager = 0;
+		var analyst = 0;
+		
+		for(var i=0; i<tbDataIdx.length; i++){
+			switch(tbDataIdx[i].JOB){
+			
+				case "PRESIDENT":
+					president++;
+					break;
+				case "CLERK" :
+					clerk++;
+					break;
+				case "SALESMAN" : 
+					salesman++;
+					break;
+				case "MANAGER" : 
+					manager++;
+					break;
+				case "ANALYST" : 
+					analyst++;
+					break;
+			}
+		}
+	
+		var chart = jui.include("chart.builder");
+		var names = {
+		    president: "PRESIDENT",
+		    salesman: "SALESMAN",
+		    manager: "MANAGER",
+		    analyst: "ANALYST",
+		    clerk: "CLERK"
+		};
 
+		chart("#pie_result", {
+		    padding : 150,
+		    axis : {
+		        data : [
+		            { president : president, salesman : salesman, manager : manager, analyst : analyst, clerk : clerk }
+		        ]
+		    },
+		    brush : {
+		        type : "pie",
+		        showText : "outer",
+		        active : "ie",
+		        activeEvent : "click",
+		        format : function(k, v) {
+		            return names[k] + ": " + v;
+		        }
+		    },
+		    widget : [{
+		        type : "title",
+		        text : "Pie Sample"
+		    }, {
+		        type : "tooltip",
+		        orient : "left",
+		        format : function(data, k) {
+		            return {
+		                key: names[k],
+		                value: data[k]
+		            }
+		        }
+		    }, {
+		        type : "legend",
+		        format : function(k) {
+		            return names[k];
+		        }
+		    }]
+		});
+}
 </script>
 </html>
