@@ -84,9 +84,10 @@ th {
 		$("#sendBtn").click(function(){
 			$("#append_column").html('');
 			var tableName = $("#tableName").val();
+			var num = 2;
 			$.ajax({
 				url: 'AjaxServlet',
-				data: 'tableName='+tableName,
+				data: 'tableName='+tableName+'&num='+num,
 				dataType: 'json',
 				type: 'GET',
 				success:function(data){

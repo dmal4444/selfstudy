@@ -43,6 +43,10 @@ public class AjaxServlet extends HttpServlet {
 		tableDAO dao = new tableDAO();
 		StringBuffer sb = new StringBuffer();
 		PrintWriter out = response.getWriter();
+		
+		String str_num = request.getParameter("num");
+		int num = Integer.parseInt(str_num);
+		int num2 = dao.doSomething(num);
 		try {
 			//table이 존재하는지 안하는지 확인한다.
 			boolean check = dao.checkTable(tableName);

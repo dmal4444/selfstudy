@@ -159,5 +159,10 @@ public class tableDAO {
 		return result;
 			
 	}
+	
+	public int doSomething(int num) {
+		
+		return num;
+	}
 
 }
