@@ -11,7 +11,7 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 public class DBConnection {
-	private static Connection conn;
+	private Connection conn;
 	private static DataSource ds;
 	private static String synchronizedCheck = "";
 	

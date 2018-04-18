@@ -4,9 +4,10 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
-<title>Insert title here</title>
+<title> 과제 </title>
 <script src="src/jui_chart/lib/jquery-1.8.0.min.js"></script>
 <script src="src/jui_chart/dist/chart.js"></script>
+
 <script src= "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 
@@ -82,7 +83,6 @@ th {
 <script>
 	$(document).ready(function(){
 		$("#sendBtn").click(function(){
-			$("#append_column").html('');
 			var tableName = $("#tableName").val();
 			var num = 2;
 			$.ajax({
@@ -91,8 +91,9 @@ th {
 				dataType: 'json',
 				type: 'GET',
 				success:function(data){
-					console.log(data);
 					
+					console.log(data);
+			
 					var tbDataIdx=data[0][tableName]; //
 					var columnName = tableName+"_column";
 					//테이블 이름 알려주기
